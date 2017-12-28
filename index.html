@@ -1,0 +1,238 @@
+<html>
+
+	<head>
+		<title>Graphics Project</title>
+
+		<style>
+			body {margin: 0; }
+			canvas { width: 100%; height: 100%; };
+		</style>
+	</head>
+
+	<body>
+		<script src="js/three.js"></script>
+		<script src="js/OrbitControls.js"></script>
+		<script src="js/water.js"></script>
+		<script src="js/OBJLoader.js"></script>
+		<script src="js/MTLLoader.js"></script>
+		<script src="js/JSONLoader.js"></script>
+		<script src="js/DDSLoader.js"></script>
+
+
+		<script>
+			var scene = new THREE.Scene();
+			var camera = new THREE.PerspectiveCamera( 35, window.innerWidth / window.innerHeight , 0.1 , 3000 );
+			camera.position.set( 15, 70, -10 );
+
+			
+
+			
+
+
+							var onProgress = function ( xhr ) {
+					if ( xhr.lengthComputable ) {
+						var percentComplete = xhr.loaded / xhr.total * 100;
+						console.log( Math.round(percentComplete, 2) + '% downloaded' );
+					}
+				};
+				var onError = function ( xhr ) { };
+			
+
+			var renderer = new THREE.WebGLRenderer( );
+			renderer.setSize( window.innerWidth , window.innerHeight );
+
+			renderer.shadowMap.enabled = true;
+  			var sunLight = new THREE.HemisphereLight(0xffffff,0xffffff,2);
+  			scene.add(sunLight);
+			document.body.appendChild( renderer.domElement );
+			scene.fog = new THREE.Fog(0xaad9fd, 30,1000);
+
+			var controller = new THREE.OrbitControls(camera,renderer.domElement);
+
+			var cubeGeometry = new THREE.CubeGeometry(window.innerWidth,window.innerHeight,1000);
+  			var cubeMaterial = [
+   				 	new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("sky/sea_ft.JPG"),side: THREE.DoubleSide}),
+    				new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load( "sky/sea_bk.JPG" ),side: THREE.DoubleSide}),
+    				new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("sky/sea_up.JPG"),side: THREE.DoubleSide}),
+    				new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("sky/sea_dn.JPG"),side: THREE.DoubleSide}),
+    				new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("sky/sea_rt.JPG"),side: THREE.DoubleSide}),
+    				new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("sky/sea_lf.JPG"),side: THREE.DoubleSide})
+  				];
+  			var skyBox = new THREE.Mesh(cubeGeometry , cubeMaterial);
+  			scene.add(skyBox);
+
+  			var citymtlLoader = new THREE.MTLLoader();
+  			citymtlLoader.load("models/city/sirus_city.mtl" , function(materials){
+  				materials.preload();
+  				var cityobjloader = new THREE.OBJLoader();
+  				cityobjloader.setMaterials(materials);
+
+  				cityobjloader.load("models/city/sirus_city.obj" , function(mesh){
+  					mesh.traverse(function(node){
+  						if(node instanceof THREE.Mesh){
+  							node.castShadow = true;
+  							node.receiveShadow = true;
+  						}
+  					})
+  					
+  					mesh.position.set(100,-12,50);
+  					mesh.scale.x = 0.09;
+  					mesh.scale.y = 0.09;
+  					mesh.scale.z = 0.09;
+  					mesh.rotation.y = -1.5;
+  					scene.add(mesh);
+  					
+  				})
+  			});
+
+  			var sharkmtlLoader = new THREE.MTLLoader();
+  			sharkmtlLoader.load("models/shark/Shark.mtl" , function(materials){
+  				materials.preload();
+  				var sharkobjloader = new THREE.OBJLoader();
+  				sharkobjloader.setMaterials(materials);
+
+  				sharkobjloader.load("models/shark/Shark.obj" , function(mesh){
+  					mesh.traverse(function(node){
+  						if(node instanceof THREE.Mesh){
+  							node.castShadow = true;
+  							node.receiveShadow = true;
+  						}
+  					})
+  					
+  					mesh.position.set(-20,-20,200);
+  					mesh.scale = 2;
+  					mesh.rotation.y = -0.7;
+  					mesh.rotation.x = 0;
+  					scene.add(mesh);
+  					requestAnimationFrame(moveshark.bind(moveshark,mesh));
+  				})
+  			});
+
+
+  			var islandmtlLoader = new THREE.MTLLoader();
+  			islandmtlLoader.load("models/Small Tropical Island/Small_Tropical_Island.mtl" , function(materialss){
+  				materialss.preload();
+  				var islandobjloader = new THREE.OBJLoader();
+  				islandobjloader.setMaterials(materialss);
+
+  				islandobjloader.load("models/Small Tropical Island/Small Tropical Island.obj" , function(mesh){
+  					mesh.traverse(function(node){
+  						if(node instanceof THREE.Mesh){
+  							node.castShadow = true;
+  							node.receiveShadow = true;
+  						}
+  					})
+  					
+  					mesh.position.set(-30,-10.9,160);
+  					mesh.scale.set(0.2,0.2,0.2);
+  					
+  					scene.add(mesh);
+  					
+  				})
+  			});
+
+  			var towermtlLoader = new THREE.MTLLoader();
+  			towermtlLoader.load("models/tower/wooden watch tower2.mtl" , function(materialss){
+  				materialss.preload();
+  				var towerobjloader = new THREE.OBJLoader();
+  				towerobjloader.setMaterials(materialss);
+
+  				towerobjloader.load("models/tower/wooden watch tower2.obj" , function(mesh){
+  					mesh.traverse(function(node){
+  						if(node instanceof THREE.Mesh){
+  							node.castShadow = true;
+  							node.receiveShadow = true;
+  						}
+  					})
+  					
+  					mesh.position.x=-4;
+  					mesh.position.y=-11;
+  					mesh.position.z=70;
+  					mesh.scale.set(4,4,4);
+  					
+  					scene.add(mesh);
+  					
+  				})
+  			});
+
+  			var shipmtlLoader = new THREE.MTLLoader();
+  			shipmtlLoader.load("models/ship/Cruiser_2012.mtl" , function(materialss){
+  				materialss.preload();
+  				var shipobjloader = new THREE.OBJLoader();
+  				shipobjloader.setMaterials(materialss);
+
+  				shipobjloader.load("models/ship/Cruiser 2012.obj" , function(mesh){
+  					mesh.traverse(function(node){
+  						if(node instanceof THREE.Mesh){
+  							node.castShadow = true;
+  							node.receiveShadow = true;
+  						}
+  					})
+  					mesh.scale.set(0.1,0.1,0.1);
+  					mesh.position.set( -20 , -14 , 40);
+  					scene.add(mesh);
+  					requestAnimationFrame(moveship.bind(moveship,mesh));
+  					
+  				})
+  			});
+
+
+
+
+  			var water = new THREE.Water(1500,5000,
+       		{
+         			textureWidth: 1500,
+         			textureHeight: 1000,
+         			waterNormals: new THREE.TextureLoader().load('textures/waternormals.jpg', function ( texture ) {
+           				texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+         			}),
+          		sunDirection: sunLight.position.clone().normalize(),
+          		sunColor: 0xffffff,
+          		waterColor: 0x046eff,
+          		distortionScale: 0,
+          		fog: scene.fog != undefined
+        	}
+      		);
+  			water.rotation.x = -Math.PI / 2;
+  			water.position.y = -10;
+  			water.receiveShadow = true;
+  			scene.add(water);
+
+			function moveship(object){
+    			object.position.x -= 0.02;
+    			object.rotation.y += 0.001;
+    			
+    			requestAnimationFrame(moveship.bind(moveship,object));
+  			}
+  			var ang = 2;
+
+  			function moveshark(object){
+  				
+  				
+  					object.position.x = 0.1+ Math.cos(ang) * 15;
+        			object.position.y = 1 + Math.sin(ang) *15;
+        			ang += 0.02;
+        			object.rotation.z += 0.02;
+					requestAnimationFrame(moveshark.bind(moveshark,object));
+  			}
+
+
+
+			var render = function( )
+			{
+				water.material.uniforms.distortionScale.value = 8;
+				renderer.render( scene , camera );
+				requestAnimationFrame(render);  
+			};
+			render();
+
+			
+
+
+
+			
+		</script>
+	
+	</body>
+
+</html>
